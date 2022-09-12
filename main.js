@@ -14,6 +14,7 @@ App.mpType = 'app'
 uni.$http = $http
 // 配置请求根路径
 $http.baseUrl = 'https://api-ugo-web.itheima.net'
+// $http.baseUrl = 'https://applet-base-api-t.itheima.net'
 // 请求开始之前做一些事情（请求拦截器）
 $http.beforeRequest = function(options) {
   uni.showLoading({

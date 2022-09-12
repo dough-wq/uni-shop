@@ -29,6 +29,7 @@
       ...mapGetters('m_user', ['addstr']),
       // token 是用户登录成功之后的 token 字符串
       ...mapState('m_user', ['token']),
+      ...mapState('m_cart', ['cart']),
       // 是否全选
       isFullCheck() {
         return this.total === this.checkedCount
@@ -68,6 +69,14 @@
         // 4. 实现微信支付功能
         this.payOrder()
       },
+      // payOrder(){
+      //   // 1.创建订单
+      //   const orderInfo = {
+      //     order_price: 0,
+      //     consignee_addr: this.addstr,
+      //     goods: []
+      //   }
+      // }
       // 微信支付
       async payOrder() {
         // 1. 创建订单
@@ -91,7 +100,7 @@
         if (res.meta.status !== 200) return uni.$showMsg('创建订单失败！')
         // 1.3 得到服务器响应的“订单编号”
         const orderNumber = res.message.order_number
-
+        // console.log(orderNumber);
         // 2. 订单预支付
         // 2.1 发起请求获取订单的支付信息
         const {
@@ -100,9 +109,10 @@
           order_number: orderNumber
         })
         // 2.2 预付订单生成失败
-        if (res2.meta.status !== 200) return uni.$showError('预付订单生成失败！')
+        if (res2.meta.status !== 200) return uni.$showMsg('预付订单生成失败！')
         // 2.3 得到订单支付相关的必要参数
         const payInfo = res2.message.pay
+        console.log(res2);
 
         // 3. 发起微信支付
         // 3.1 调用 uni.requestPayment() 发起微信支付
@@ -132,6 +142,8 @@
 
         // 2. 创建定时器，每隔 1 秒执行一次
         this.timer = setInterval(() => {
+          this.seconds--
+
           // 2. 判断秒数是否 <= 0
           if (this.seconds <= 0) {
             // 2.1 清除定时器

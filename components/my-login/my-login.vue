@@ -4,7 +4,7 @@
     <uni-icons type="contact-filled" size="100" color="#AFAFAF"></uni-icons>
     <!-- 登录按钮 -->
     <!-- 可以从 @getuserinfo 事件处理函数的形参中，获取到用户的基本信息 -->
-    <button type="primary" class="btn-login" open-type="getUserInfo" @getuserinfo="getUserInfo">一键登录</button>
+    <button type="primary" class="btn-login" @click="getUserProfile">一键登录</button>
     <!-- 登录提示 -->
     <view class="tips-text">登录后尽享更多权益</view>
   </view>
@@ -50,28 +50,47 @@
         const {
           data: loginResult
         } = await uni.$http.post('/api/public/v1/users/wxlogin', query)
-        if (loginResult.meta.status !== 200) return uni.$showMsg('登录失败！')
+        // if (loginResult.meta.status !== 200) return uni.$showMsg('登录失败！')
         uni.$showMsg('登录成功')
 
         // 2. 更新 vuex 中的 token
-        this.updateToken(loginResult.message.token)
+        this.updateToken(
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIzLCJpYXQiOjE1NjQ3MzAwNzksImV4cCI6MTAwMTU2NDczMDA3OH0.YPt-XeLnjV-_1ITaXGY2FhxmCe4NvXuRnRB8OMCfnPo"
+        )
 
         // 判断 vuex 中的 redirectInfo 是否为 null
         // 如果不为 null，则登录成功之后，需要重新导航到对应的页面
         this.navigateBack()
       },
-      // 获取微信用户的基本信息
-      getUserInfo(e) {
-        // 判断是否获取用户信息成功
-        if (e.detail.errMsg === 'getUserInfo:fail auth deny') return uni.$showMsg('您取消了登录授权！')
-        // 获取用户信息成功， e.detail.userInfo 就是用户的基本信息
-        // console.log(e.detail.userInfo)
+      // // 获取微信用户的基本信息,此方法已失效
+      // getUserInfo(e) {
+      //   // 判断是否获取用户信息成功
+      //   if (e.detail.errMsg === 'getUserInfo:fail auth deny') return uni.$showMsg('您取消了登录授权！')
+      //   // 获取用户信息成功， e.detail.userInfo 就是用户的基本信息
+      //   // console.log(e.detail.userInfo)
 
-        // 3. 将用户的基本信息存储到 vuex 中
-        this.updateUserInfo(e.detail.userInfo)
+      //   // 3. 将用户的基本信息存储到 vuex 中
+      //   this.updateUserInfo(e.detail.userInfo)
 
-        // 获取登录成功后的 Token 字符串
-        this.getToken(e.detail)
+      //   // 获取登录成功后的 Token 字符串
+      //   this.getToken(e.detail)
+      // },
+      getUserProfile(e) {
+        let that = this
+        uni.getUserProfile({
+          desc: '登录',
+          success: (res) => {
+            console.log(res);
+            // 3. 将用户的基本信息存储到 vuex 中
+            this.updateUserInfo(res.userInfo)
+            // 获取登录成功后的 Token 字符串
+            this.getToken(res)
+
+          },
+          fail: (res) => {
+            return uni.$showMsg('您取消了登录授权！')
+          },
+        })
       },
       // 返回登录之前的页面
       navigateBack() {
